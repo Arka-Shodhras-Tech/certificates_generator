@@ -1,0 +1,7 @@
+.welcome{
+  background: linear-gradient(180deg, #100445, #ff01a2);
+  font-size: 60px;
+  font-family: poppins;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
