@@ -2,12 +2,19 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
-import Submission from './submission';
 import { Testing } from './testing';
+import { Certificate } from '../student/certificate';
 
 export const StudentRequest = () => {
     const [data, setData] = useState([]);
     const [approve, setApprove] = useState(false);
+    const [user,setUser]=useState(
+        {
+            name:"",
+            course:"",
+            mail:""
+        }
+    )
 
     useEffect(() => {
         axios.post(process.env.REACT_APP_database + "/students")
@@ -41,14 +48,14 @@ export const StudentRequest = () => {
                             <strong>{val.Course}</strong>
                         </Card.Text>
                         <div style={{ display: 'flex', justifyContent: "space-evenly" }}>
-                            <Button variant="success" onClick={handleApprove}>Approve</Button>
+                            <Button variant="success" onClick={handleApprove} onClickCapture={() => setUser(val1 => ({ ...val1, name: val.Name,course:val.Course,mail:val.Gmail }))}>Approve</Button>
                             <Button variant="warning" onClick={handleArchive}>Archive</Button>
                             <Button variant="danger" onClick={handleReject}>Reject</Button>
                         </div>
                     </Card.Body>
                 </Card>
             ))}
-            {approve && <Submission display={true} stop={setApprove} />}
+            {approve && <Certificate name={user.name} course={user.course} mail={user.mail}/>}
         </>
     );
 };

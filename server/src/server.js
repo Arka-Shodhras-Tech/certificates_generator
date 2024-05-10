@@ -74,6 +74,15 @@ app.post('/storepdf', multer.single("file"), async (req, res) => {
 });
 
 
+app.post('/storepdftomongo', async (req, res) => {
+    await db.collection('Certificates').insertOne({ Gmail: req.body.mail,Link:req.body.link})
+        .then((details) => {
+            res.status(200).json({ success: true });
+        })
+        .catch((e) => console.log(e))
+});
+
+
 
 app.post('/students', async (req, res) => {
     await db.collection("Signup").find().toArray()

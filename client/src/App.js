@@ -16,6 +16,7 @@ function App() {
           <Route path='/student' Component={Request} />
           <Route path='/certificate' Component={Certificate}/>
           <Route path='/admin' Component={Admin}/>
+          
         </Routes>
       </BrowserRouter>
     </>

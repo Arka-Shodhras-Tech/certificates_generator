@@ -10,6 +10,7 @@
     "axios": "^1.6.8",
     "bootstrap": "^5.3.3",
     "googleapis": "^136.0.0",
+    "html-to-image": "^1.11.11",
     "jspdf": "^2.5.1",
     "pdf-lib": "^1.17.1",
     "pdfkit": "^0.15.0",

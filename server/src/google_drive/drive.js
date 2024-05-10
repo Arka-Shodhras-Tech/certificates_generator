@@ -11,7 +11,7 @@ export const uploadToGoogleDrive = async (files) => {
             "https://developers.google.com/oauthplayground"
         );
         oauth2Client.setCredentials({
-            access_token: "ya29.a0AXooCgvyf8mjuGOf9YKMYv8NIuaDt1nOsJM97b2v9eor-dgxEKiFYMBUckqyJfH710JKDiwvUIU7Vw68i-twj29RuAr0xQS2j_FaKaPjHsUMFheAhCKfdtlWEStq8QyZkAbUrahSo35wEFIQGGWCQvmLFOxcDXAU0phSaCgYKAV8SARISFQHGX2Miz3P0QIvVGT2X8R5u0OH9Fg0171",
+            access_token: "ya29.a0AXooCgv40a-9DUZDh64WlDX1o6tHW2lUSu2kZG3IppZj06vAu07uRDYIEspmI2Z2zbKkRQvtHmi5x0lwILVxIBi4v4eH3TBTuGB7_j3iLrjeU3SMsJUM4u-Xk6VIOFgeMaSNNc8Hl0IDLfP2iNLxIinCoclXdFXn1TDPaCgYKAeoSARISFQHGX2MiBFe8RCa4yJTbRqCa2-nWAw0171"
         });
 
         const scopes = [
@@ -54,11 +54,12 @@ export const uploadToGoogleDrive = async (files) => {
             folderId = folderRes.data.id;
         }
         const fileMetadata = {
-            name: 'Sample_project_wad.pdf',
+            name: 'Sample_project_wad.png',
             parents: [folderId]
         };
         const media = {
-            mimeType: 'application/pdf',
+            // mimeType: 'application/pdf',
+            mimeType:"image/png",
             body: fs.createReadStream(files)
         };
         const result = await drive.files.create({
