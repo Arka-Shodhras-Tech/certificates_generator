@@ -1,10 +1,16 @@
-import { useState } from "react"
-import certificateImage from "./certificate.png"
+import { useToast } from "@chakra-ui/react";
+import axios from 'axios';
 import { toPng } from 'html-to-image';
-import axios from 'axios'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import certificateImage from "./certificate.png";
+
 export const Certificate = ({ name, course, mail }) => {
     const [load, SetLoad] = useState(true)
+    const toast = useToast();
     const [loading, SetLoading] = useState(false)
+    const nav=useNavigate()
+    const queryParams = new URLSearchParams(window.location.search);
     let result = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-';
     const charactersLength = characters.length;
@@ -19,14 +25,25 @@ export const Certificate = ({ name, course, mail }) => {
                 const formData = new FormData();
                 const blob = await fetch(dataUrl).then(res => res.blob());
                 formData.append("file", blob, 'image.png');
+                formData.append('name',name)
+                formData.append('course',course)
+                formData.append('mail',mail)
                 await axios.post(process.env.REACT_APP_database + "/storepdf", formData)
                     .then(async (res) => {
                         if (res.data.link) {
                             await axios.post(process.env.REACT_APP_database + "/storepdftomongo", { mail, link: res.data.link })
-                                .then((res1) => {
+                                .then(async (res1) => {
                                     if (res1.data) {
-                                        window.open(res.data.link)
-                                        SetLoading(false)
+                                        await axios.post(process.env.REACT_APP_database + "/approve" + "/" + mail + "/" + course)
+                                            .then((res2) => {
+                                                if (res2.data) {
+                                                    queryParams.set("view", "requests")
+                                                    nav({ search: queryParams.toString() })
+                                                    toast({ title: "Approved", status: 'success', position: "bottom-right", isClosable: true })
+                                                    window.open(res.data.link)
+                                                    SetLoading(false)
+                                                }
+                                            }).catch((e) => console.log(e))
                                     }
                                 }).catch((e) => console.log(e), SetLoading(false))
                         }
@@ -42,7 +59,7 @@ export const Certificate = ({ name, course, mail }) => {
                 <h1>Please wait for certificate</h1>
             </div>}
             {
-                load && <div id="htmlContent" style={{ width: "100%", height: "120vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                load && name&&mail&&<div id="htmlContent" style={{ width: "100%", height: "120vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
                     <img src={certificateImage} className="cerficateimage" />
                     <div className="certificatename">
                         <p1>{name}</p1>
@@ -50,7 +67,7 @@ export const Certificate = ({ name, course, mail }) => {
                         <div>
                             <p2 >
                                 <p>
-                                    For successfully completing the {course} 
+                                    For successfully completing the {course}
                                     course on 03/05/2024.
                                 </p>
                             </p2>
@@ -61,9 +78,9 @@ export const Certificate = ({ name, course, mail }) => {
                     </p>
                 </div>
             }
-            <div style={{ width: "100%", height: "40vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+            {name&&mail&&<div style={{ width: "100%", height: "40vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
                 <button onClick={GetCertificate} className="getcertificate">{loading ? "Sending..." : "Sent Certificate"}</button>
-            </div>
+            </div>}
         </div>
     )
 }

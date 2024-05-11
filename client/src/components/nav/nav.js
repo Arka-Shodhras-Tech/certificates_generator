@@ -12,9 +12,9 @@ export const Navbars = () => {
                             <Nav.Link href="/">Home</Nav.Link>
                             <Nav.Link href="/admin">Admin</Nav.Link>
                             <Nav.Link href="/student">Student</Nav.Link>
-                            {/* <NavDropdown title="More" id="basic-nav-dropdown">
-                                <NavDropdown.Item href="/certificate">Certificate Generate</NavDropdown.Item>
-                            </NavDropdown> */}
+                            <NavDropdown title="More" id="basic-nav-dropdown">
+                                <NavDropdown.Item href="/certificates">Certificates</NavDropdown.Item>
+                            </NavDropdown>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

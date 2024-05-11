@@ -1,10 +1,10 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
+import { Admin } from './components/admin/admin';
+import { Certificates } from './components/certificates/certificates';
+import { Home } from './components/home/home';
 import { Navbars } from './components/nav/nav';
 import Request from './components/student/student';
-import { Certificate } from './components/student/certificate';
-import { Home } from './components/home/home';
-import { Admin } from './components/admin/admin';
 
 function App() {
   return (
@@ -14,9 +14,8 @@ function App() {
         <Routes>
           <Route path='/' Component={Home}/>
           <Route path='/student' Component={Request} />
-          <Route path='/certificate' Component={Certificate}/>
           <Route path='/admin' Component={Admin}/>
-          
+          <Route path='/certificates' Component={Certificates}/>
         </Routes>
       </BrowserRouter>
     </>

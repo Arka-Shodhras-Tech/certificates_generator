@@ -1,8 +1,8 @@
 import { useToast } from "@chakra-ui/react";
+import axios from 'axios';
+import jsPDF from 'jspdf';
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios'
-import jsPDF from 'jspdf'
 import '../student/student.css';
 const Submission = ({ display, stop }) => {
   const nav = useNavigate();
@@ -33,16 +33,16 @@ const Submission = ({ display, stop }) => {
       const certificateUrl = URL.createObjectURL(certificateBlob);
       window.open(certificateUrl, '_blank');
 
-      // const pdf1 = pdf.output('blob')
-      // console.log(pdf1)
-      // if (pdf1) {
-      //   formData.append("file", pdf1);
-      //   await axios.post(process.env.REACT_APP_database + "/storepdf", formData)
-      //     .then((res) => console.log(res)).catch((e) => console.log(e))
-      // }
-      // else {
-      //   alert("pdf error")
-      // }
+      const pdf1 = pdf.output('blob')
+      console.log(pdf1)
+      if (pdf1) {
+        formData.append("file", pdf1);
+        await axios.post(process.env.REACT_APP_database + "/storepdf", formData)
+          .then((res) => console.log(res)).catch((e) => console.log(e))
+      }
+      else {
+        alert("pdf error")
+      }
     } catch (error) {
       console.error('Error generating certificate:', error);
     }

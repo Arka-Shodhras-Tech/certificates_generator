@@ -14,10 +14,13 @@ const Request = () => {
             if (emailRegex.test(email)) {
                 const res = await axios.post(process.env.REACT_APP_database + "/signup/" + email + "/" + name + "/" + course + "/" + time)
                 {
-                    if (res) {
+                    if(res.data.message){
+                        toast({ title: "Already Exist", status: 'warning', position: "bottom-right", isClosable: true })
+                    }
+                    else if(res.data.data){
                         toast({ title: "Sent data Successfully", status: 'success', position: "bottom-right", isClosable: true })
                         setTimeout(() => {
-                            window.location.href="certificate"
+                            // window.location.href="certificate"
                         }, 1500);
                     }
                     else {
