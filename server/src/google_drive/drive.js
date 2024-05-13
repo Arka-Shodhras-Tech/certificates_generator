@@ -1,38 +1,48 @@
 import express from 'express';
 import fs from 'fs';
 import { google } from 'googleapis';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const app = express()
 app.use(express.json())
+const auth = new google.auth.GoogleAuth({
+    keyFile: `${__dirname}/apikeys.json`,
+    scopes: "https://www.googleapis.com/auth/drive",
+  });
 export const uploadToGoogleDrive = async (files, name, course, mail) => {
     try {
-        const oauth2Client = new google.auth.OAuth2(
-            process.env.clientId,
-            process.env.clientSecret,
-            process.env.directUrl
-        );
-        oauth2Client.setCredentials({
-            access_token: process.env.accessToken
-        });
+        // const oauth2Client = new google.auth.OAuth2(
+        //     process.env.clientId,
+        //     process.env.clientSecret,
+        //     process.env.directUrl
+        // );
+        // oauth2Client.setCredentials({
+        //     access_token: process.env.accessToken
+        // });
 
-        const scopes = [
-            "https://www.googleapis.com/auth/drive",
-        ];
-        const url = oauth2Client.generateAuthUrl({
-            access_type: 'offline',
-            scope: scopes
-        });
+        // const scopes = [
+        //     "https://www.googleapis.com/auth/drive",
+        // ];
+        // const url = oauth2Client.generateAuthUrl({
+        //     access_type: 'offline',
+        //     scope: scopes
+        // });
 
-        oauth2Client.on('tokens', (tokens) => {
-            console.log("ON TOKENS");
-            if (tokens.refresh_token) {
-                console.log("Refresh Token: " + tokens.refresh_token);
-            }
-            console.log("New Access Token: " + tokens.access_token);
-        });
-        const drive = google.drive({
-            version: 'v3',
-            auth: oauth2Client
-        });
+        // oauth2Client.on('tokens', (tokens) => {
+        //     console.log("ON TOKENS");
+        //     if (tokens.refresh_token) {
+        //         console.log("Refresh Token: " + tokens.refresh_token);
+        //     }
+        //     console.log("New Access Token: " + tokens.access_token);
+        // });
+        // const drive = google.drive({
+        //     version: 'v3',
+        //     auth: oauth2Client
+        // });
+
+        const drive=google.drive({ version: "v3", auth })
         const folderName = `Certificates`;
         const folderQuery = `'root' in parents and mimeType='application/vnd.google-apps.folder' and name='${folderName}'`;
         const folderSearchRes = await drive.files.list({
@@ -42,7 +52,7 @@ export const uploadToGoogleDrive = async (files, name, course, mail) => {
         let parentFolderId;
         let folderId;
         if (folderSearchRes.data.files.length > 0) {
-            parentFolderId = folderSearchRes.data.files[0].id;
+            parentFolderId = process.env.folderId;
         } else {
             const folderMetadata = {
                 name: folderName,

@@ -45,9 +45,9 @@ export const Certificate = ({ name, course, mail }) => {
                                                 }
                                             }).catch((e) => console.log(e))
                                     }
-                                }).catch((e) => console.log(e), SetLoading(false))
+                                }).catch((e) => console.log(e))
                         }
-                    }).catch((e) => console.log(e), SetLoading(false))
+                    }).catch((e) => console.log(e))
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -79,7 +79,7 @@ export const Certificate = ({ name, course, mail }) => {
                 </div>
             }
             {name&&mail&&<div style={{ width: "100%", height: "40vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                <button onClick={GetCertificate} className="getcertificate">{loading ? "Sending..." : "Sent Certificate"}</button>
+                <button onClick={GetCertificate} className="getcertificate">{loading ? "It take some time Please wait..." : "Sent Certificate"}</button>
             </div>}
         </div>
     )

@@ -11,6 +11,7 @@
 # production
 /build
 .env
+ast-drive-422605-d650ae8a2a4a.json
 # misc
 .DS_Store
 .env.local

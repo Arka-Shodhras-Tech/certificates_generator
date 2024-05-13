@@ -1,5 +1,5 @@
-import { MongoClient } from "mongodb";
 import dotenv from 'dotenv';
+import { MongoClient } from "mongodb";
 let db;
 dotenv.config()
 async function connectToDB(cb){

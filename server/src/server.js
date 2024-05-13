@@ -20,6 +20,8 @@ app.post('/student/:gmail', async (req, res) => {
         .catch((e) => console.log(e))
 })
 
+
+
 app.post('/signup/:email/:name/:course/:time', async (req, res) => {
     await db.collection('Signup').findOne({ Gmail: req.params.email, Course: req.params.course })
         .then(async (details) => {
@@ -85,7 +87,6 @@ app.post('/storepdf', multer.single("file"), async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
-
 
 app.post('/retrivepdf',async(req,res)=>{
     await DataFromGoogleDrive().then((result)=>{

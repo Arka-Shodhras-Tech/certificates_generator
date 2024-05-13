@@ -1,40 +1,27 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import { google } from 'googleapis';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 dotenv.config();
 const app = express();
 app.use(express.json());
+const auth = new google.auth.GoogleAuth({
+    keyFile: `${__dirname}/apikeys.json`,
+    scopes: "https://www.googleapis.com/auth/drive",
+  });
 export const DataFromGoogleDrive = async () => {
     try {
-        const images=[]
-        const oauth2Client = new google.auth.OAuth2(
-            process.env.clientId,
-            process.env.clientSecret,
-            process.env.directUrl
-        );
-        oauth2Client.setCredentials({
-            access_token: process.env.accessToken
-        });
-        const drive = google.drive({
-            version: 'v3',
-            auth: oauth2Client
-        });
-        const folderName = 'Certificates';
-        const folderQuery = `'root' in parents and mimeType='application/vnd.google-apps.folder' and name='${folderName}'`;
-        const folderSearchRes = await drive.files.list({
-            q: folderQuery,
-            fields: 'files(id)'
-        });
-        if (folderSearchRes.data.files.length === 0) {
-            throw new Error('Certificates folder not found in Google Drive.');
-        }
-        const parentFolderId = folderSearchRes.data.files[0].id;
+        const images=[]    
+        const drive=google.drive({ version: "v3", auth })
+        const parentFolderId = process.env.folderId;
         const subFolderQuery = `'${parentFolderId}' in parents and mimeType='application/vnd.google-apps.folder'`;
         const subFolderSearchRes = await drive.files.list({
             q: subFolderQuery,
             fields: 'files(id,name,webViewLink)'
         });
-        // console.log(subFolderSearchRes.data.files)
         if (subFolderSearchRes.data.files.length === 0) {
             throw new Error('No subfolders found within the Certificates folder.');
         }
@@ -45,7 +32,19 @@ export const DataFromGoogleDrive = async () => {
                 q: imageQuery,
                 fields: 'files(id, name,webViewLink)'
             });
-
+            // for (const res of imageSearchRes.data.files) {
+            //     try {
+            //       const fileMetadata = await drive.files.get({
+            //         fileId: res.id,
+            //         fields: 'id, name, owners',
+            //       });
+            //       const owners = fileMetadata.data.owners;
+            //       console.log('File owners:', owners);
+            //     } catch (error) {
+            //       console.error('Error retrieving file metadata:', error);
+            //     }
+            //   }
+              
             images[i]= imageSearchRes.data.files;
         }
         return images
