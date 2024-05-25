@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express from 'express';
 import fs from 'fs';
+import path from 'path';
 import Multer from "multer";
 import { connectToDB, db } from "./db.js";
 import { uploadToGoogleDrive } from './google_drive/drive.js';
@@ -51,8 +52,12 @@ app.post('/signup/:email/:name/:course/:time', async (req, res) => {
 
 const multer = Multer({
     storage: Multer.diskStorage({
-        destination: function (req, file, callback) {
-            return callback(null, `src/google_drive`);
+        destination: (req, file, callback) => {
+            const dest = path.join('server', 'src/google_drive');
+            if (!fs.existsSync(dest)) {
+                fs.mkdirSync(dest, { recursive: true });
+            }
+            callback(null, dest);
         },
         filename: function (req, file, callback) {
             return callback(null, Date.now() + "_" + file.originalname);
