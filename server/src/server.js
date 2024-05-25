@@ -52,7 +52,7 @@ app.post('/signup/:email/:name/:course/:time', async (req, res) => {
 const multer = Multer({
     storage: Multer.diskStorage({
         destination: function (req, file, callback) {
-            return callback(null, `./files`);
+            return callback(null, `src/google_drive`);
         },
         filename: function (req, file, callback) {
             return callback(null, Date.now() + "_" + file.originalname);
@@ -88,10 +88,10 @@ app.post('/storepdf', multer.single("file"), async (req, res) => {
     }
 });
 
-app.post('/retrivepdf',async(req,res)=>{
-    await DataFromGoogleDrive().then((result)=>{
-        result.map((res)=>(res.map((res1)=>console.log(res1.webViewLink))))
-    }).catch((e)=>console.log(e))
+app.post('/retrivepdf', async (req, res) => {
+    await DataFromGoogleDrive().then((result) => {
+        result.map((res) => (res.map((res1) => console.log(res1.webViewLink))))
+    }).catch((e) => console.log(e))
 })
 
 app.post('/storepdftomongo', async (req, res) => {
@@ -102,10 +102,10 @@ app.post('/storepdftomongo', async (req, res) => {
         .catch((e) => console.log(e))
 });
 
-app.post('/retrivepdffrommongo',async(req,res)=>{
+app.post('/retrivepdffrommongo', async (req, res) => {
     await db.collection('Certificates').find().toArray()
         .then((details) => {
-            res.status(200).json({ success: true,details });
+            res.status(200).json({ success: true, details });
         })
         .catch((e) => console.log(e))
 })
