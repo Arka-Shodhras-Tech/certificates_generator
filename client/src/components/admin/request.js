@@ -82,7 +82,7 @@ export const StudentRequest = () => {
                 <h6>Total:: {length.total}</h6>
             </div>
             {approve || set === "requests" && data.map((val, index) => (
-                val?.Pending && <Card key={index}>
+                <Card key={index}>
                     <Card.Header as="h5">Request for certificate</Card.Header>
                     <Card.Body>
                         <Card.Title>{"Request from " + val.Name}</Card.Title>

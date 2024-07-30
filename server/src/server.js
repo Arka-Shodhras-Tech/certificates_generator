@@ -1,7 +1,5 @@
 import cors from 'cors';
 import express from 'express';
-import fs from 'fs';
-import path from 'path';
 import Multer from "multer";
 import { connectToDB, db } from "./db.js";
 import { uploadToGoogleDrive } from './google_drive/drive.js';
@@ -50,45 +48,39 @@ app.post('/signup/:email/:name/:course/:time', async (req, res) => {
 })
 
 
-const multer = Multer({
-    storage: Multer.diskStorage({
-        destination: (req, file, callback) => {
-            const dest = path.join('server', 'src/google_drive');
-            if (!fs.existsSync(dest)) {
-                fs.mkdirSync(dest, { recursive: true });
+const initiateMulter = () => {
+    return  async(req, res, next) => {
+        const storage = Multer.memoryStorage();
+        const upload = Multer({ storage, limits: { fileSize: 25 * 1024 * 1024 } });
+        const uploadFn = upload.any();
+        uploadFn(req, res, function (err) {
+            if (err) {
+                console.error(err);
+                return next(err);
             }
-            callback(null, dest);
-        },
-        filename: function (req, file, callback) {
-            return callback(null, Date.now() + "_" + file.originalname);
-        }
-    }),
-    limits: {
-        fileSize: 5 * 1024 * 1024
-    }
-});
+            next();
+        });
+    };
+}
 
-app.post('/storepdf', multer.single("file"), async (req, res) => {
+app.post('/storepdf', initiateMulter(), async (req, res) => {
     try {
-        if (!req.file) {
+        if (!req.files || req.files.length === 0) {
             console.log("No file uploaded");
-            res.status(400).send("No file uploaded.");
-            return;
+            return res.status(400).send("No file uploaded.");
         }
+        const file = req.files[0];
         if (req.body.mail) {
-            await uploadToGoogleDrive(req.file.path, req.body.name, req.body.course, req.body.mail)
-                .then((result) => {
-                    fs.unlinkSync(req.file.path);
-                    res.status(200).json({ success: true, link: result });
-                })
-                .catch((e) => {
-                    console.log(e)
-                    fs.unlinkSync(req.file.path);
-                }
-                )
+            try {
+                const result = await uploadToGoogleDrive(file.buffer, req.body.name, req.body.course, req.body.mail);
+                res.status(200).json({ success: true, link: result });
+            } catch (e) {
+                console.error(e);
+                res.status(500).json({ error: "Error uploading file" });
+            }
         }
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({ error: "Internal server error" });
     }
 });

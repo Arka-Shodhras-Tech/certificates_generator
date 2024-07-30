@@ -32,19 +32,6 @@ export const DataFromGoogleDrive = async () => {
                 q: imageQuery,
                 fields: 'files(id, name,webViewLink)'
             });
-            // for (const res of imageSearchRes.data.files) {
-            //     try {
-            //       const fileMetadata = await drive.files.get({
-            //         fileId: res.id,
-            //         fields: 'id, name, owners',
-            //       });
-            //       const owners = fileMetadata.data.owners;
-            //       console.log('File owners:', owners);
-            //     } catch (error) {
-            //       console.error('Error retrieving file metadata:', error);
-            //     }
-            //   }
-              
             images[i]= imageSearchRes.data.files;
         }
         return images

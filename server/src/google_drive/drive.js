@@ -1,48 +1,21 @@
+import dotenv from 'dotenv';
 import express from 'express';
-import fs from 'fs';
+import { GoogleAuth } from 'google-auth-library';
 import { google } from 'googleapis';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { Stream } from 'stream';
+import { config } from './config.js';
+dotenv.config()
+
 const app = express()
 app.use(express.json())
-const auth = new google.auth.GoogleAuth({
-    keyFile: `${__dirname}/apikeys.json`,
+const auth = new GoogleAuth({
+    credentials: config,
     scopes: "https://www.googleapis.com/auth/drive",
-  });
-export const uploadToGoogleDrive = async (files, name, course, mail) => {
+});
+
+export const uploadToGoogleDrive = async (files, name, course, foldername) => {
     try {
-        // const oauth2Client = new google.auth.OAuth2(
-        //     process.env.clientId,
-        //     process.env.clientSecret,
-        //     process.env.directUrl
-        // );
-        // oauth2Client.setCredentials({
-        //     access_token: process.env.accessToken
-        // });
-
-        // const scopes = [
-        //     "https://www.googleapis.com/auth/drive",
-        // ];
-        // const url = oauth2Client.generateAuthUrl({
-        //     access_type: 'offline',
-        //     scope: scopes
-        // });
-
-        // oauth2Client.on('tokens', (tokens) => {
-        //     console.log("ON TOKENS");
-        //     if (tokens.refresh_token) {
-        //         console.log("Refresh Token: " + tokens.refresh_token);
-        //     }
-        //     console.log("New Access Token: " + tokens.access_token);
-        // });
-        // const drive = google.drive({
-        //     version: 'v3',
-        //     auth: oauth2Client
-        // });
-
-        const drive=google.drive({ version: "v3", auth })
+        const drive = google.drive({ version: "v3", auth })
         const folderName = `Certificates`;
         const folderQuery = `'root' in parents and mimeType='application/vnd.google-apps.folder' and name='${folderName}'`;
         const folderSearchRes = await drive.files.list({
@@ -51,6 +24,8 @@ export const uploadToGoogleDrive = async (files, name, course, mail) => {
         });
         let parentFolderId;
         let folderId;
+        const bufferStream = new Stream.PassThrough();
+        bufferStream.end(files);
         if (folderSearchRes.data.files.length > 0) {
             parentFolderId = process.env.folderId;
         } else {
@@ -65,7 +40,7 @@ export const uploadToGoogleDrive = async (files, name, course, mail) => {
             parentFolderId = folderRes.data.id;
         }
         if (parentFolderId) {
-            const folderQuery = `'${parentFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and name='${mail}'`;
+            const folderQuery = `'${parentFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and name='${foldername}'`;
             const folderSearchRes = await drive.files.list({
                 q: folderQuery,
                 fields: 'files(id)'
@@ -74,7 +49,7 @@ export const uploadToGoogleDrive = async (files, name, course, mail) => {
                 folderId = folderSearchRes.data.files[0].id;
             } else {
                 const folderMetadata = {
-                    name: mail,
+                    name: foldername,
                     mimeType: 'application/vnd.google-apps.folder',
                     parents: [parentFolderId]
                 };
@@ -92,7 +67,7 @@ export const uploadToGoogleDrive = async (files, name, course, mail) => {
         const media = {
             // mimeType: 'application/pdf',
             mimeType: "image/png",
-            body: fs.createReadStream(files)
+            body: bufferStream
         };
         const result = await drive.files.create({
             requestBody: fileMetadata,
