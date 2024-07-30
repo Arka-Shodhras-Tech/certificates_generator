@@ -1,13 +1,12 @@
 import dotenv from 'dotenv';
 import { google } from 'googleapis';
-import { auth } from './auth.js';
-
+import { auth } from '../google_drive/auth.js';
 dotenv.config();
 
 export const DataFromGoogleDrive = async () => {
     try {
-        const images=[]    
-        const drive=google.drive({ version: "v3", auth })
+        const images = []
+        const drive = google.drive({ version: "v3", auth })
         const parentFolderId = process.env.folderId;
         const subFolderQuery = `'${parentFolderId}' in parents and mimeType='application/vnd.google-apps.folder'`;
         const subFolderSearchRes = await drive.files.list({
@@ -24,7 +23,7 @@ export const DataFromGoogleDrive = async () => {
                 q: imageQuery,
                 fields: 'files(id, name,webViewLink)'
             });
-            images[i]= imageSearchRes.data.files;
+            images[i] = imageSearchRes.data.files;
         }
         return images
     } catch (error) {

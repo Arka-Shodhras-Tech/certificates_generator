@@ -4,6 +4,7 @@ import Multer from "multer";
 import { connectToDB, db } from "./db.js";
 import { uploadToGoogleDrive } from './google_drive/drive.js';
 import { DataFromGoogleDrive } from './google_drive/drivedata.js';
+import { uploadPhotos } from './hackathon/uploadphotos.js';
 const app = express()
 app.use(cors())
 app.use(express.json())
@@ -49,7 +50,7 @@ app.post('/signup/:email/:name/:course/:time', async (req, res) => {
 
 
 const initiateMulter = () => {
-    return  async(req, res, next) => {
+    return async (req, res, next) => {
         const storage = Multer.memoryStorage();
         const upload = Multer({ storage, limits: { fileSize: 25 * 1024 * 1024 } });
         const uploadFn = upload.any();
@@ -69,10 +70,10 @@ app.post('/storepdf', initiateMulter(), async (req, res) => {
             console.log("No file uploaded");
             return res.status(400).send("No file uploaded.");
         }
-        const file = req.files[0];
+        const file = req.files;
         if (req.body.mail) {
             try {
-                const result = await uploadToGoogleDrive(file.buffer, req.body.name, req.body.course, req.body.mail);
+                const result = await uploadToGoogleDrive(file, req.body.name, req.body.course, req.body.mail);
                 res.status(200).json({ success: true, link: result });
             } catch (e) {
                 console.error(e);
@@ -157,9 +158,31 @@ app.post('/students', async (req, res) => {
         .catch((e) => console.log(e))
 })
 
+app.post('/uploadphotos', initiateMulter(), async (req, res) => {
+    try {
+        if (!req.files || req.files.length === 0) {
+            console.log("No file uploaded");
+            return res.status(400).send("No file uploaded.");
+        }
+        const file = req.files;
+        if (req.body.teamname) {
+            try {
+                const result = await uploadPhotos(file, req.body.teamname);
+                res.status(200).json({ message: "upload photos sucessfully", link: result });
+            } catch (e) {
+                console.error(e);
+                res.json({ error: "Error uploading file" });
+            }
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 
 connectToDB(() => {
-    app.listen(8000, () => {
-        console.log("server running at 8000");
+    app.listen(9877, () => {
+        console.log("server running at 9877");
     })
 })
