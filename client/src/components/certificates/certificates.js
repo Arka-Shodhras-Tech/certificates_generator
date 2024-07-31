@@ -1,10 +1,9 @@
-import axios from "axios"
-import { useEffect, useState } from "react"
-import { Button } from "react-bootstrap";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
-import Image from './certificate.png'
 import Row from 'react-bootstrap/Row';
+import Image from './certificate.png';
 
 export const Certificates = () => {
     const [data, setData] = useState([])

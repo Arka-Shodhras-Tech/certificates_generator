@@ -3,7 +3,7 @@ import { google } from 'googleapis';
 import { auth } from '../google_drive/auth.js';
 dotenv.config();
 
-export const DataFromGoogleDrive = async () => {
+export const ShowPhotos = async () => {
     try {
         const images = []
         const drive = google.drive({ version: "v3", auth })
@@ -18,12 +18,16 @@ export const DataFromGoogleDrive = async () => {
         }
         for (let i = 0; i < subFolderSearchRes.data.files.length; i++) {
             const subFolderId = subFolderSearchRes.data.files[i].id;
+            const subFolderName = subFolderSearchRes.data.files[i].name;
             const imageQuery = `'${subFolderId}' in parents and mimeType contains 'image/'`;
             const imageSearchRes = await drive.files.list({
                 q: imageQuery,
                 fields: 'files(id, name,webViewLink)'
             });
-            images[i] = imageSearchRes.data.files;
+            images[i] = {
+                folder: subFolderName,
+                Links: imageSearchRes.data.files
+            };
         }
         return images
     } catch (error) {

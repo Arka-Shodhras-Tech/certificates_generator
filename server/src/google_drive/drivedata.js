@@ -19,12 +19,14 @@ export const DataFromGoogleDrive = async () => {
         }
         for (let i = 0; i < subFolderSearchRes.data.files.length; i++) {
             const subFolderId = subFolderSearchRes.data.files[i].id;
+            const subFolderName = subFolderSearchRes.data.files[i].name;
             const imageQuery = `'${subFolderId}' in parents and mimeType contains 'image/'`;
             const imageSearchRes = await drive.files.list({
                 q: imageQuery,
                 fields: 'files(id, name,webViewLink)'
             });
             images[i]= imageSearchRes.data.files;
+            console.log(imageSearchRes)
         }
         return images
     } catch (error) {

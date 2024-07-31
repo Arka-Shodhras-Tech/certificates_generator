@@ -4,7 +4,11 @@ import Multer from "multer";
 import { connectToDB, db } from "./db.js";
 import { uploadToGoogleDrive } from './google_drive/drive.js';
 import { DataFromGoogleDrive } from './google_drive/drivedata.js';
+import { DeleteFile } from './hackathon/deletefile.js';
+import { DeleteFolder } from './hackathon/deletefolder.js';
+import { ShowPhotos } from './hackathon/showphotos.js';
 import { uploadPhotos } from './hackathon/uploadphotos.js';
+import { TeamPhotos } from './hackathon/teamphotos.js';
 const app = express()
 app.use(cors())
 app.use(express.json())
@@ -88,7 +92,7 @@ app.post('/storepdf', initiateMulter(), async (req, res) => {
 
 app.post('/retrivepdf', async (req, res) => {
     await DataFromGoogleDrive().then((result) => {
-        result.map((res) => (res.map((res1) => console.log(res1.webViewLink))))
+        console.log(result.map((val) => val?.Link?.map((photo) => photo?.webViewLink)))
     }).catch((e) => console.log(e))
 })
 
@@ -179,6 +183,32 @@ app.post('/uploadphotos', initiateMulter(), async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
+app.post('/showphotos', async (req, res) => {
+    await ShowPhotos().then((result) => {
+        res.json(result)
+    }).catch((e) => console.log(e))
+})
+
+app.post('/teamhotos', async (req, res) => {
+    await TeamPhotos(req.body.team,res).then((result) => {
+        res.json(result)
+    }).catch((e) => console.log(e))
+})
+
+app.post('/deletephoto', async (req, res) => {
+    await DeleteFile(req.body.id)
+        .then(() => {
+            res.json({ message: 'delete photo' })
+        }).catch((e) => console.log(e))
+})
+
+app.post('/deleteallphotos', async (req, res) => {
+    await DeleteFolder(req.body.id)
+        .then((result) => {
+            res.json({ message: 'delete folder' })
+        }).catch((e) => console.log(e))
+})
 
 
 connectToDB(() => {
